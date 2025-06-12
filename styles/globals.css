@@ -25,6 +25,7 @@ body {
   line-height: 1.6;
   overflow-x: hidden;
   scroll-behavior: smooth;
+  cursor: none; /* Hide default cursor */
 }
 
 /* Cam görünümlü bileşen stili */
@@ -244,6 +245,25 @@ textarea:focus-visible {
 
 .interactive-element:hover::before {
   opacity: 1;
+}
+
+/* Custom cursor styles for the global mouse follower */
+body {
+  cursor: none;
+}
+
+/* Re-enable cursor for specific interactive elements */
+button, a, input, textarea, select {
+  cursor: pointer;
+}
+
+/* Interactive elements styling */
+.interactive {
+  transition: transform 0.2s ease;
+}
+
+.interactive:hover {
+  transform: scale(1.05);
 }
 
 /* Enhanced performance for animations */

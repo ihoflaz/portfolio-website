@@ -6,7 +6,7 @@ import { ExternalLink, Github, Code, Brain, Smartphone, Server, Database, Cloud,
 import * as LucideIcons from 'lucide-react';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { Button } from '@/components/ui/Button';
-import { projects, getProjectIcon, getIconFallback } from '@/lib/data';
+import { projects, getProjectIcon, getIconFallback, getProjectIconColor } from '@/lib/data';
 import { Project } from '@/types';
 
 // Proje kategorisi/türüne göre ikon eşleştirme
@@ -58,14 +58,17 @@ const getProjectType = (project: Project): string => {
 };
 
 // Proje kartı bileşeni
-const ProjectCard: React.FC<{ project: Project; index: number }> = ({ project, index }) => {
-  const projectType = getProjectType(project);
+const ProjectCard: React.FC<{ project: Project; index: number }> = ({ project, index }) => {  const projectType = getProjectType(project);
   const Icon = projectIcons[projectType] || Puzzle;
   const colors = projectColors[projectType] || projectColors.other;
-    // Get specific icon for this project
+  
+  // Get specific icon for this project
   const specificIconName = getProjectIcon(project.id);
   const fallbackIconName = getIconFallback(specificIconName);
   const SpecificIcon = (LucideIcons as any)[specificIconName] || (LucideIcons as any)[fallbackIconName] || Icon;
+  
+  // Get project-specific colors
+  const iconColors = getProjectIconColor(project.id);
 
   return (
     <motion.div
@@ -75,14 +78,34 @@ const ProjectCard: React.FC<{ project: Project; index: number }> = ({ project, i
       viewport={{ once: true }}
       whileHover={{ scale: 1.02 }}
       className="glass p-6 rounded-2xl hover:shadow-2xl transition-all duration-300 group"
-    >
-      {/* Project Icon Header */}
-      <div className="relative h-48 flex items-center justify-center bg-gradient-to-br from-blue-500/20 to-purple-600/20 backdrop-blur-sm rounded-xl mb-4">
+    >      {/* Project Icon Header with colors */}
+      <div className={`relative h-48 flex items-center justify-center bg-gradient-to-br ${iconColors.bgColor} backdrop-blur-sm rounded-xl mb-4 group-hover:scale-105 transition-transform duration-300 overflow-hidden`}>
         <SpecificIcon 
           size={64} 
-          className="text-blue-400 group-hover:text-blue-300 transition-colors duration-300" 
+          className={`${iconColors.iconColor} group-hover:scale-110 transition-all duration-300 drop-shadow-lg relative z-10`}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-xl" />
+        
+        {/* Animated background gradient */}
+        <div className={`absolute inset-0 bg-gradient-to-br ${iconColors.bgColor} opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-pulse`} />
+        
+        {/* Floating mini particles around the icon */}
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+          {[...Array(4)].map((_, i) => (
+            <div
+              key={i}
+              className={`absolute w-1 h-1 ${iconColors.iconColor.replace('text-', 'bg-')} rounded-full animate-ping`}
+              style={{
+                top: `${20 + i * 15}%`,
+                left: `${10 + i * 20}%`,
+                animationDelay: `${i * 0.2}s`,
+              }}
+            />
+          ))}
+        </div>
+        
+        {/* Glow effect on hover */}
+        <div className={`absolute inset-0 rounded-xl blur-xl ${iconColors.bgColor} opacity-0 group-hover:opacity-30 transition-opacity duration-300 -z-10`} />
       </div>
       
       {/* Proje başlığı */}

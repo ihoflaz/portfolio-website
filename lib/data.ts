@@ -39,6 +39,113 @@ export const getIconFallback = (iconName: string): string => {
   return fallbacks[iconName] || iconName;
 };
 
+// Project icon colors based on category and technology
+export const getProjectIconColor = (projectId: string): { iconColor: string, bgColor: string, shadowColor: string } => {
+  const colorMap: Record<string, { iconColor: string, bgColor: string, shadowColor: string }> = {
+    'opca': { 
+      iconColor: 'text-cyan-400', 
+      bgColor: 'from-cyan-500/20 to-blue-600/20', 
+      shadowColor: 'shadow-cyan-400/50' 
+    },
+    'teknofest-wireless': { 
+      iconColor: 'text-orange-400', 
+      bgColor: 'from-orange-500/20 to-red-600/20', 
+      shadowColor: 'shadow-orange-400/50' 
+    },
+    'sara-safe-range': { 
+      iconColor: 'text-blue-400', 
+      bgColor: 'from-blue-500/20 to-indigo-600/20', 
+      shadowColor: 'shadow-blue-400/50' 
+    },
+    'pharmora': { 
+      iconColor: 'text-green-400', 
+      bgColor: 'from-green-500/20 to-emerald-600/20', 
+      shadowColor: 'shadow-green-400/50' 
+    },
+    'emotion-analysis': { 
+      iconColor: 'text-purple-400', 
+      bgColor: 'from-purple-500/20 to-violet-600/20', 
+      shadowColor: 'shadow-purple-400/50' 
+    },
+    'f43-bootcamp': { 
+      iconColor: 'text-sky-400', 
+      bgColor: 'from-sky-500/20 to-cyan-600/20', 
+      shadowColor: 'shadow-sky-400/50' 
+    },
+    'stock-video-api': { 
+      iconColor: 'text-pink-400', 
+      bgColor: 'from-pink-500/20 to-rose-600/20', 
+      shadowColor: 'shadow-pink-400/50' 
+    },
+    'eguven-admin': { 
+      iconColor: 'text-amber-400', 
+      bgColor: 'from-amber-500/20 to-yellow-600/20', 
+      shadowColor: 'shadow-amber-400/50' 
+    },
+    'endulus-travel': { 
+      iconColor: 'text-teal-400', 
+      bgColor: 'from-teal-500/20 to-cyan-600/20', 
+      shadowColor: 'shadow-teal-400/50' 
+    },
+    'hand-gesture': { 
+      iconColor: 'text-violet-400', 
+      bgColor: 'from-violet-500/20 to-purple-600/20', 
+      shadowColor: 'shadow-violet-400/50' 
+    },
+    'turkce-llm': { 
+      iconColor: 'text-indigo-400', 
+      bgColor: 'from-indigo-500/20 to-blue-600/20', 
+      shadowColor: 'shadow-indigo-400/50' 
+    },
+    'ios-image-ai': { 
+      iconColor: 'text-emerald-400', 
+      bgColor: 'from-emerald-500/20 to-green-600/20', 
+      shadowColor: 'shadow-emerald-400/50' 
+    },
+    'java-exception': { 
+      iconColor: 'text-red-400', 
+      bgColor: 'from-red-500/20 to-orange-600/20', 
+      shadowColor: 'shadow-red-400/50' 
+    },
+    'wokwi-microcontroller': { 
+      iconColor: 'text-yellow-400', 
+      bgColor: 'from-yellow-500/20 to-amber-600/20', 
+      shadowColor: 'shadow-yellow-400/50' 
+    },
+    'sdk6800-assembly': { 
+      iconColor: 'text-slate-400', 
+      bgColor: 'from-slate-500/20 to-gray-600/20', 
+      shadowColor: 'shadow-slate-400/50' 
+    },
+    'swift-phone-auth': { 
+      iconColor: 'text-rose-400', 
+      bgColor: 'from-rose-500/20 to-pink-600/20', 
+      shadowColor: 'shadow-rose-400/50' 
+    },
+    'hashcat-password': { 
+      iconColor: 'text-gray-400', 
+      bgColor: 'from-gray-500/20 to-slate-600/20', 
+      shadowColor: 'shadow-gray-400/50' 
+    },
+    'blog-platform': { 
+      iconColor: 'text-lime-400', 
+      bgColor: 'from-lime-500/20 to-green-600/20', 
+      shadowColor: 'shadow-lime-400/50' 
+    },
+    'swift-handwritten-digits': { 
+      iconColor: 'text-fuchsia-400', 
+      bgColor: 'from-fuchsia-500/20 to-purple-600/20', 
+      shadowColor: 'shadow-fuchsia-400/50' 
+    }
+  };
+  
+  return colorMap[projectId] || { 
+    iconColor: 'text-blue-400', 
+    bgColor: 'from-blue-500/20 to-purple-600/20', 
+    shadowColor: 'shadow-blue-400/50' 
+  };
+};
+
 export const personalInfo: PersonalInfo = {
   name: "İbrahim Hulusi Oflaz",
   title: "Software Developer",
