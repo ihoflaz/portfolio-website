@@ -1,0 +1,207 @@
+# İbrahim Hulusi Oflaz Portfolyo Web Sitesi Kuralları
+
+## Genel Proje Yapısı
+- Modern ve profesyonel bir portfolyo sitesi oluşturulacak
+- Responsive tasarım (mobil uyumlu) prensipleri uygulanacak
+- Premium görünüm için yüksek kaliteli UI/UX standartları kullanılacak
+- SEO optimizasyonu yapılacak
+- Yenilikçi ve interaktif kullanıcı deneyimi sağlanacak
+
+## Teknoloji Yığını
+- HTML5, CSS3, JavaScript (ES6+) temel yapı için kullanılacak
+- Frontend Framework: Next.js 13+ (App Router)
+- State Management: React Context API veya Redux Toolkit
+- UI Kütüphanesi: Tailwind CSS 3.0+
+- Animasyonlar: Framer Motion 10.0+
+- Icon Set: Lucide Icons veya Heroicons
+- Form Yönetimi: React Hook Form + Zod validasyon
+- Deployment: Vercel
+- CMS: Sanity.io veya Contentful (isteğe bağlı)
+- API Yapısı: REST API veya GraphQL
+- TypeScript kullanılacak
+
+## Proje Yapısı ve Dosya Organizasyonu
+```
+src/
+  ├── app/                  # Next.js App Router yapısı
+  │   ├── api/              # API Routes
+  │   └── layout.tsx        # Root layout
+  ├── components/           # Bileşenler
+  │   ├── ui/               # Temel UI bileşenleri
+  │   ├── sections/         # Sayfa bölümleri
+  │   ├── layout/           # Layout bileşenleri
+  │   └── shared/           # Paylaşılan bileşenler
+  ├── hooks/                # Custom React hooks
+  ├── lib/                  # Yardımcı fonksiyonlar
+  ├── styles/               # Global stiller
+  ├── types/                # TypeScript type tanımlamaları
+  ├── utils/                # Yardımcı fonksiyonlar
+  └── context/              # Context API yapıları
+```
+
+## Site Yapısı ve Sayfa İçerikleri
+- **Ana Sayfa (Hero Section)**
+  - Dikkat çeken hero bölümü (glassmorphism efekti ile)
+  - İsim, unvan ve kısa tanıtım
+  - CTA butonları (CV İndir, İletişime Geç)
+  - Animasyonlu arkaplan
+  - Sosyal medya bağlantıları
+
+- **Hakkımda**
+  - Profesyonel fotoğraf
+  - Detaylı kişisel ve profesyonel tanıtım
+  - Eğitim bilgileri
+  - Kişisel ilgi alanları ve hobiler
+  - Dil becerileri
+
+- **Deneyimler**
+  - Interaktif zaman çizelgesi (timeline)
+  - Şirket logoları ve detayları
+  - Çalışma süreleri ve pozisyonlar
+  - Sorumluluk ve başarılar
+  - Glassmorphism kartlar ile görselleştirme
+
+- **Projeler**
+  - Proje kartları (glassmorphism efekti ile)
+  - Proje görselleri ve açıklamaları
+  - Kullanılan teknolojiler
+  - Canlı demo ve GitHub linkleri
+  - Filtreleme seçenekleri (teknolojiye göre)
+  - Detay sayfaları
+
+- **Yetenekler**
+  - Kategorilendirilmiş yetenekler (Frontend, Backend, Diğer)
+  - Yetenek seviyesi göstergeleri
+  - Teknoloji ikonları
+  - Animasyonlu gösterim
+
+- **İletişim**
+  - İletişim formu
+  - İletişim bilgileri
+  - Lokasyon haritası
+  - Sosyal medya bağlantıları
+  - Form validasyonu
+
+- **CV İndirme Bölümü**
+  - PDF formatında CV indirme
+  - CV önizleme
+
+## Tasarım Prensipleri
+### Glassmorphism Tasarımı
+- Yarı saydam (opacity: 0.7-0.9 arası) kartlar ve UI elementleri
+- Hafif blur efekti (backdrop-filter: blur(10px))
+- Hafif border (border: 1px solid rgba(255, 255, 255, 0.18))
+- Subtle gölgeler (box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37))
+- Gradient arka plan renkler
+- Frosted glass efekti için background-color: rgba(255, 255, 255, 0.25)
+
+### Renk Paleti
+- **Koyu Tema**
+  - Arka plan: #0F172A (koyu lacivert)
+  - Birincil: #3B82F6 (mavi)
+  - İkincil: #F56565 (kırmızı aksan)
+  - Nötr: #4A5568 (gri)
+  - Text: #F8FAFC (beyaz)
+  - Accent: #10B981 (yeşil)
+
+- **Açık Tema**
+  - Arka plan: #F8FAFC (beyaz)
+  - Birincil: #2563EB (mavi)
+  - İkincil: #EF4444 (kırmızı aksan)
+  - Nötr: #E2E8F0 (açık gri)
+  - Text: #1E293B (koyu lacivert)
+  - Accent: #059669 (yeşil)
+
+### Tipografi
+- Başlıklar: Inter, font-weight: 700, 800
+- Metin: Inter, font-weight: 400, 500
+- Vurgu Metinleri: Inter, font-weight: 600
+- Font boyutları:
+  - h1: 3rem (48px)
+  - h2: 2.25rem (36px)
+  - h3: 1.5rem (24px)
+  - p: 1rem (16px)
+  - small: 0.875rem (14px)
+- Line-height: 1.5-1.7 arası
+
+### Responsive Breakpoint'ler
+- Mobile (Small): 0px - 640px
+- Mobile (Medium): 641px - 768px
+- Tablet: 769px - 1024px
+- Desktop (Small): 1025px - 1280px
+- Desktop (Large): 1281px ve üzeri
+
+### Animasyon Prensipleri
+- Sayfa geçişleri: fade/slide
+- Element girişleri: scale/fade
+- Hover efektleri: transform/scale
+- Scroll animasyonları: stagger/reveal
+- Animasyon süresi: 0.3s - 0.5s
+- Animasyon türü: ease-in-out, cubic-bezier
+
+## İçerik Stratejisi
+- CV'deki bilgiler interaktif bir şekilde sunulacak
+- Projelerin görseller ile desteklenmesi (mobil, tablet ve desktop görünümleri)
+- Deneyim ve eğitim bilgilerinin timeline formatında gösterilmesi
+- Beceri ve teknolojilerin görsel ikonlar ile temsil edilmesi
+- Başarı ve sertifikaların öne çıkarılması
+- Kısa ve öz metinler ile dikkat çekme
+- İlgi çekici veri görselleştirmeleri
+
+## Performans Hedefleri ve Optimizasyon
+- Lighthouse skoru minimum 90+
+- Web Vitals ölçümleri:
+  - LCP (Largest Contentful Paint): < 2.5s
+  - FID (First Input Delay): < 100ms
+  - CLS (Cumulative Layout Shift): < 0.1
+- Sayfa yüklenme süresi 2 saniyeden az
+- Progressive Web App (PWA) desteği
+- Görsel optimizasyonu:
+  - WebP formatı
+  - Lazy loading
+  - Responsive images
+  - Next.js Image component kullanımı
+- Font optimizasyonu
+- Code splitting ve lazy loading
+- Servis işçileri (Service Workers)
+
+## Erişilebilirlik Standartları
+- WCAG 2.1 AA uyumluluğu
+- Semantik HTML yapısı
+- Klavye navigasyonu
+- Ekran okuyucu uyumluluğu
+- Yeterli renk kontrastı (minimum 4.5:1)
+- Aria etiketleri
+- Focus stilleri
+- Alt metinleri
+
+## Tarayıcı Uyumluluğu
+- Chrome (son 2 versiyon)
+- Firefox (son 2 versiyon)
+- Safari (son 2 versiyon)
+- Edge (son 2 versiyon)
+- iOS Safari (son 2 versiyon)
+- Android Chrome (son 2 versiyon)
+
+## Geliştirme Süreçleri ve Kod Standartları
+- Component-based yaklaşım
+- Atomic Design prensipleri
+- Versiyon kontrol: Git (GitHub)
+  - Feature branch workflow
+  - Conventional commits (feat, fix, docs, style, refactor, test, chore)
+- Clean code prensipleri
+  - DRY (Don't Repeat Yourself)
+  - KISS (Keep It Simple, Stupid)
+  - SOLID prensipleri
+- Kod formatı:
+  - ESLint (airbnb config)
+  - Prettier
+- CSS yaklaşımı:
+  - Tailwind CSS utility-first
+  - CSS Modules
+  - CSS Variables
+- Test stratejisi:
+  - Jest ve React Testing Library
+  - Component testi
+  - E2E testi (Cypress veya Playwright)
+- CI/CD pipeline (GitHub Actions) 

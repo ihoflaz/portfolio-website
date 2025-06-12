@@ -1,0 +1,682 @@
+'use client';
+
+import React, { useRef, useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import { ExternalLink, Github, ArrowRight, Code, Brain, Box, FileCode, Smartphone, Server, Database, Cloud, Puzzle } from 'lucide-react';
+import { SectionHeader } from '@/components/ui/SectionHeader';
+import { Button } from '@/components/ui/Button';
+import { projects } from '@/lib/data';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { Project } from '@/types';
+import { useWindowSize } from '@/components/utils/useWindowSize';
+
+// GSAP plugin'ini kaydedelim
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
+// Scroller yardımcı fonksiyonu
+const scrollToPosition = (position: number) => {
+  window.scrollTo({
+    top: position,
+    behavior: 'smooth'
+  });
+};
+
+// Proje kategorisi/türüne göre ikon eşleştirme
+const projectIcons: Record<string, React.ElementType> = {
+  'web': Code,
+  'mobile': Smartphone,
+  'ai': Brain,
+  'backend': Server,
+  'database': Database,
+  'cloud': Cloud,
+  'other': Puzzle
+};
+
+// Proje türüne göre arka plan ve metin renkleri
+const projectColors: Record<string, { bg: string, text: string }> = {
+  'ai': { bg: 'bg-purple-500/20', text: 'text-purple-400' },
+  'mobile': { bg: 'bg-cyan-500/20', text: 'text-cyan-400' },
+  'backend': { bg: 'bg-green-500/20', text: 'text-green-400' },
+  'web': { bg: 'bg-blue-500/20', text: 'text-blue-400' },
+  'database': { bg: 'bg-yellow-500/20', text: 'text-yellow-400' },
+  'cloud': { bg: 'bg-orange-500/20', text: 'text-orange-400' },
+  'other': { bg: 'bg-gray-500/20', text: 'text-gray-400' }
+};
+
+// Varsayılan proje türleri
+const defaultProjectTypes: Record<string, string> = {
+  'opca': 'ai',
+  'emotion-analysis': 'ai',
+  'turkce-llm': 'ai',
+  'ios-image-ai': 'mobile',
+  'stock-video-api': 'backend',
+  'eguven-admin': 'web',
+  'endulus-travel': 'web',
+  'f43-bootcamp': 'web',
+  'pharmora': 'database',
+  'sara-safe-range': 'backend',
+  'teknofest-wireless': 'other',
+  'hand-gesture': 'ai'
+};
+
+interface ProjectModalProps {
+  project: Project;
+  onClose: () => void;
+}
+
+export const ProjectsSection: React.FC = () => {
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isUserScrolling, setIsUserScrolling] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [containerHeight, setContainerHeight] = useState('auto'); // Hydration için başlangıç değeri
+  const [cardsSectionHeight, setCardsSectionHeight] = useState('auto'); // Hydration için başlangıç değeri
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const animationRef = useRef<gsap.core.Timeline | null>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const cardsRef = useRef<HTMLDivElement>(null);
+  const panelsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const indicatorsRef = useRef<HTMLDivElement>(null);
+  const { viewportHeight, navbarHeight } = useWindowSize();
+  
+  const handleProjectClick = (project: Project) => {
+    setSelectedProject(project);
+  };
+  
+  const closeProjectModal = () => {
+    setSelectedProject(null);
+  };
+  
+  // Scroll işlemi kullanıcı tarafından mı başlatıldı takip edelim
+  const handleUserScrollStart = () => {
+    setIsUserScrolling(true);
+    
+    // Belirli bir süre sonra kullanıcı scroll'unu sıfırlayalım
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+    }
+    
+    scrollTimeoutRef.current = setTimeout(() => {
+      setIsUserScrolling(false);
+    }, 300); // Kullanıcı scroll sonrası bekleme süresi - daha kısa
+  };
+  
+  useEffect(() => {
+    // Proje modal açıkken scroll'u engelleyelim
+    if (selectedProject) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [selectedProject]);
+  
+  useEffect(() => {
+    if (!containerRef.current || !cardsRef.current || typeof window === 'undefined') return;
+
+    // Önce mevcut ScrollTrigger'ları temizleyelim
+    ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+    
+    // Pinned bölümün yüksekliğini hesaplayalım - projelerin düzgün şekilde görüntülenmesi için
+    // Her proje için kullanılabilir ekran yüksekliğinin 0.8 katı kadar yükseklik ayırıyoruz (daha kompakt)
+    const totalHeight = projects.length * viewportHeight * 0.8;
+    
+    // Direkt DOM'u değiştirmek yerine state kullan (hydration hatası önleme)
+    setContainerHeight(`${totalHeight}px`);
+    setCardsSectionHeight(`${viewportHeight * 0.5}px`);
+    
+    // İlk projeyi başlangıçta aktif olarak ayarla (0 indexli)
+    setActiveIndex(0);
+    
+    // Başlangıçta tüm kartları ayarlayalım
+    gsap.set(panelsRef.current, (index: number) => ({
+      opacity: index === 0 ? 1 : 0.1, // İlk kart görünür, diğerleri şeffaf
+      scale: index === 0 ? 1 : 0.8, 
+      y: index === 0 ? 0 : -50 + (index * 10),
+      zIndex: projects.length - index,
+      rotationX: index === 0 ? 0 : -10,
+      filter: index === 0 ? 'none' : 'blur(3px) brightness(0.7)',
+      transformOrigin: "center top",
+      force3D: true
+    }));
+    
+    // Ana scroll animasyonunu oluşturalım
+    const containerAnimation = gsap.timeline({
+      scrollTrigger: {
+        trigger: containerRef.current,
+        pin: cardsRef.current,
+        start: "top center", // Kartları sayfanın ortasında konumlandır
+        end: `bottom-=${viewportHeight * 0.2} bottom`, // İndikatör alanı için boşluk bırak
+        scrub: 0.8, // Daha hassas scroll için değeri düşürdük (0.8)
+        anticipatePin: 1,
+        pinSpacing: true,
+        invalidateOnRefresh: true,
+        snap: {
+          snapTo: (i) => i / (projects.length - 1), // Projeler arasında eşit aralıklarla snap
+          duration: 0.3, // Snap animasyon süresi
+          ease: "power2.out" // Animasyon eğrisi
+        },
+        onUpdate: (self) => {
+          // Kullanıcı scroll ediyorsa ve animasyon çalışmıyorsa aktif projeyi güncelle
+          if (!isAnimating) {
+            // Aktif projeyi belirleyelim
+            const newIndex = Math.min(
+              projects.length - 1, 
+              Math.max(0, Math.floor(self.progress * projects.length))
+            );
+            
+            if (newIndex !== activeIndex) {
+              setActiveIndex(newIndex);
+              
+              // Aktif olmayan kartlarda sınıfları güncelle
+              panelsRef.current.forEach((panel, i) => {
+                if (panel) {
+                  if (i === newIndex) {
+                    panel.classList.remove('card-inactive');
+                    panel.classList.add('card-active');
+                  } else {
+                    panel.classList.remove('card-active');
+                    panel.classList.add('card-inactive');
+                  }
+                }
+              });
+            }
+          }
+        },
+        onToggle: (self) => {
+          // ScrollTrigger aktif/pasif olduğunda
+          if (self.isActive && !isUserScrolling) {
+            setIsAnimating(true);
+          } else if (!isUserScrolling) {
+            setIsAnimating(false);
+          }
+        }
+      }
+    });
+    
+    // Animasyon referansını saklayalım
+    animationRef.current = containerAnimation;
+    
+    // Her proje kartı için ayrı animasyon tanımlayalım
+    projects.forEach((_, index) => {
+      const nextIndex = index + 1 < projects.length ? index + 1 : null;
+      
+      // Scroll aralığını hesaplama
+      const progress = 1 / projects.length;
+      const startProgress = index * progress;
+      
+      // Geçiş için timeline oluşturma
+      const tl = gsap.timeline();
+      
+      // Mevcut kartı arkaya gönder (geliştirilmiş 3D efekti ile)
+      if (index < projects.length - 1) {
+        // Aktif kartın sınıflarını değiştirelim
+        if (panelsRef.current[index]) {
+          panelsRef.current[index]?.classList.remove('card-active');
+          panelsRef.current[index]?.classList.add('card-inactive');
+        }
+        
+        tl.to(panelsRef.current[index], {
+          opacity: 0.1, // Daha şeffaf
+          scale: 0.8, // Daha küçük
+          y: -150, // Daha yukarı gitmesini sağlayalım
+          rotationX: -15, // Daha belirgin eğim
+          filter: 'blur(5px) brightness(0.5)', // Bulanıklık ve karartma artırıldı
+          duration: progress * 0.6, // Daha hızlı geçiş
+          ease: "power3.inOut", // Daha yumuşak geçiş
+          zIndex: 0
+        }, "<");
+        
+        // Bir sonraki kartı öne getir (geliştirilmiş geçiş ile)
+        if (nextIndex !== null && panelsRef.current[nextIndex]) {
+          // Yeni aktif kartın sınıflarını değiştirelim
+          panelsRef.current[nextIndex]?.classList.remove('card-inactive');
+          panelsRef.current[nextIndex]?.classList.add('card-active');
+          
+          tl.to(panelsRef.current[nextIndex], {
+            opacity: 1, // Tam görünürlük
+            scale: 1, // Tam boyut
+            y: 0, // Normal pozisyon
+            rotationX: 0, // Eğim yok
+            filter: 'none', // Filtre yok
+            duration: progress * 0.6, // Daha hızlı geçiş
+            ease: "power2.out", // Daha dinamik giriş
+            zIndex: projects.length
+          }, "<");
+        }
+      }
+      
+      // Timeline'ı ana animasyona ekle
+      containerAnimation.add(tl, startProgress);
+    });
+    
+    // Scroll olayı dinleyicisi ekleyelim - farklı mouse hızlarını ele alır
+    const handleScroll = (e: WheelEvent) => {
+      // Delta değerine bağlı olarak scroll hızını ölçeklendirme
+      const delta = Math.abs(e.deltaY);
+      const isQuickScroll = delta > 100; // Hızlı scroll eşiği
+      
+      if (isQuickScroll) {
+        // Kullanıcı çok hızlı scroll yapıyor, hızlı geçiş için ScrollTrigger refresh yapalım
+        ScrollTrigger.refresh();
+      }
+      
+      // Kullanıcı scroll durumunu güncelle
+      handleUserScrollStart();
+    };
+    
+    // Dokunmatik cihazlar için scroll dinleyicisi
+    const handleTouchMove = () => {
+      handleUserScrollStart();
+    };
+    
+    window.addEventListener('wheel', handleScroll, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    
+    // Ekran yeniden boyutlandırıldığında animasyonu güncelle
+    const resizeObserver = new ResizeObserver(() => {
+      ScrollTrigger.refresh();
+    });
+    
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+    }
+    
+    // Temizleme işlemi
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+      resizeObserver.disconnect();
+      window.removeEventListener('wheel', handleScroll);
+      window.removeEventListener('touchmove', handleTouchMove);
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, [activeIndex, viewportHeight, navbarHeight, projects.length]);
+  
+  // activeIndex değiştiğinde indikatörü güncelle
+  useEffect(() => {
+    // İndikatörler animasyonu
+    if (indicatorsRef.current) {
+      // Tüm indikatör noktalarını seçelim
+      const indicators = indicatorsRef.current.querySelectorAll('.indicator-dot');
+      
+      // Aktif indikatör noktasına smooth scroll yapalım
+      if (indicators[activeIndex]) {
+        indicators[activeIndex].scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'center'
+        });
+      }
+    }
+  }, [activeIndex]);
+  
+  // Viewport yüksekliği değiştiğinde yükseklik değerlerini güncelle
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    // Hydration sorunlarını önlemek için client tarafında hesapla
+    const totalHeight = projects.length * viewportHeight * 0.8;
+    setContainerHeight(`${totalHeight}px`);
+    setCardsSectionHeight(`${viewportHeight * 0.5}px`);
+  }, [viewportHeight, projects.length]);
+  
+  return (
+    <section 
+      id="projects" 
+      className="py-24 relative" 
+      ref={sectionRef}
+    >
+      {/* Sabit Başlık - z-index yüksek değer ile diğer elemanların üzerinde durur */}
+      <div 
+        ref={headerRef} 
+        className="sticky top-0 z-50 pt-8 pb-8 bg-gradient-to-b from-dark-bg via-dark-bg to-transparent"
+        style={{ top: `${navbarHeight}px` }}
+      >
+        <div className="container mx-auto px-4">
+          <SectionHeader
+            title="Projelerim"
+            subtitle="GitHub'daki en popüler ve ilgi çekici projelerimden bazıları"
+          />
+        </div>
+      </div>
+      
+      <div className="container mx-auto px-4">
+        {/* Scroll konteyner - bu div sadece yükseklik için */}
+        <div 
+          className="relative" 
+          ref={containerRef}
+          onTouchStart={handleUserScrollStart}
+          onWheel={handleUserScrollStart}
+          style={{ height: containerHeight }}
+        >
+          {/* Pinned (sabitlenmiş) konteyner - yalnızca kartlar için */}
+          <div 
+            ref={cardsRef} 
+            className="w-full flex flex-col items-center justify-center perspective-1000"
+            style={{ height: cardsSectionHeight }}
+          >
+            {/* Kart Konteyner */}
+            <div className="relative max-w-3xl mx-auto w-full">
+              {projects.map((project, index) => {
+                const projectType = defaultProjectTypes[project.id] || 'web';
+                const ProjectIcon = projectIcons[projectType] || Code;
+                const colors = projectColors[projectType];
+                
+                return (
+                  <div
+                    key={project.id}
+                    className={`card-3d cursor-pointer p-6 absolute top-0 left-0 right-0 opacity-0 transition-all duration-300 transform-gpu backdrop-blur-xl rounded-xl border border-gray-800/50 ${index === 0 ? 'card-active' : 'card-inactive'}`}
+                    ref={(el) => {
+                      panelsRef.current[index] = el;
+                    }}
+                    onClick={() => handleProjectClick(project)}
+                  >
+                    <div className="flex gap-6">
+                      {/* Proje ikonu */}
+                      <div className={`hidden md:flex w-16 h-16 rounded-xl ${colors.bg} items-center justify-center flex-shrink-0`}>
+                        <ProjectIcon size={32} className={colors.text} />
+                      </div>
+                      
+                      {/* Proje içerik alanı */}
+                      <div className="flex-1">
+                        <div className="flex items-start justify-between mb-4">
+                          <h3 className="text-xl font-bold">{project.title}</h3>
+                          <div className="md:hidden flex items-center justify-center w-10 h-10 rounded-lg bg-blue-500/20">
+                            <ProjectIcon size={20} className="text-blue-400" />
+                          </div>
+                        </div>
+                        
+                        <p className="text-gray-400 mb-6 text-sm">
+                          {project.description}
+                        </p>
+                        
+                        <div className="flex flex-wrap gap-2 mb-6">
+                          {project.technologies.map((tech: string) => (
+                            <span
+                              key={tech}
+                              className="text-xs bg-blue-500/10 text-blue-400 px-2 py-1 rounded-md"
+                            >
+                              {tech}
+                            </span>
+                          ))}
+                        </div>
+                        
+                        <div className="flex items-center justify-between">
+                          <div className="flex gap-4">
+                            {project.githubUrl && (
+                              <a
+                                href={project.githubUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="bg-gray-800/50 p-2 rounded-lg text-gray-400 hover:text-white transition-colors"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <Github size={18} />
+                              </a>
+                            )}
+                            {project.liveUrl && (
+                              <a
+                                href={project.liveUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="bg-gray-800/50 p-2 rounded-lg text-gray-400 hover:text-white transition-colors"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <ExternalLink size={18} />
+                              </a>
+                            )}
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-blue-400 hover:text-blue-300"
+                          >
+                            Detaylar
+                            <ArrowRight size={14} className="ml-1" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Sabit Proje İndikatörleri - Ekranın altında sabit */}
+      <div 
+        ref={indicatorsRef} 
+        className="sticky bottom-0 left-0 right-0 z-50 py-6 bg-gradient-to-t from-dark-bg via-dark-bg to-transparent"
+      >
+        <div className="container mx-auto">
+          <div className="flex flex-col items-center">
+            <div className="flex justify-start items-center gap-4 mb-2 max-w-full overflow-x-auto scrollbar-hide px-4 py-2 snap-x snap-mandatory">
+              {projects.map((project, index) => {
+                const isActive = index === activeIndex;
+                const projectType = defaultProjectTypes[project.id] || 'web';
+                const colors = projectColors[projectType];
+                
+                return (
+                  <div
+                    key={index}
+                    className={`transition-all duration-500 ease-out flex flex-col items-center snap-start flex-shrink-0 ${
+                      isActive ? 'transform scale-110' : 'opacity-40'
+                    }`}
+                    onClick={() => {
+                      // İndikatöre tıklandığında scroll pozisyonunu güncelle
+                      if (containerRef.current) {
+                        const scrollPosition = containerRef.current.offsetTop + (index * viewportHeight * 0.8);
+                        scrollToPosition(scrollPosition);
+                        setActiveIndex(index);
+                      }
+                    }}
+                  >
+                    <div 
+                      className={`relative w-2 h-2 md:w-3 md:h-3 rounded-full mb-2 transition-all duration-300 indicator-dot cursor-pointer ${
+                        isActive 
+                          ? `${colors.bg.replace('/20', '/60')} scale-150 shadow-lg shadow-${colors.bg.replace('/20', '/10')}` 
+                          : 'bg-gray-600'
+                      }`}
+                      aria-label={`Proje ${index + 1}`}
+                    >
+                      {isActive && (
+                        <span className="absolute -inset-1 rounded-full animate-ping bg-blue-500 opacity-30"></span>
+                      )}
+                    </div>
+                    <div className="text-center h-6 mx-1">
+                      {isActive && (
+                        <span className={`text-xs font-medium ${colors.text} px-2 py-1 rounded-md bg-dark-bg/80 backdrop-blur-sm whitespace-nowrap`}>
+                          {project.title}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            
+            {/* Aktif proje bilgisi */}
+            <div className="text-center text-sm text-gray-400 flex items-center gap-2">
+              <span className="font-medium text-blue-400">{activeIndex + 1}</span>
+              <div className="w-16 h-1 bg-gray-800 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-blue-500 transition-all duration-500 ease-out"
+                  style={{ width: `${((activeIndex + 1) / projects.length) * 100}%` }}
+                ></div>
+              </div>
+              <span>{projects.length}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* CSS Stil tanımlamaları */}
+      <style jsx global>{`
+        .card-active {
+          background-color: rgba(15, 23, 42, 0.8);
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .card-inactive {
+          background-color: rgba(15, 23, 42, 0.6);
+          box-shadow: none;
+        }
+        
+        .perspective-1000 {
+          perspective: 1000px;
+        }
+        
+        /* Scrollbar'ı gizle */
+        .scrollbar-hide {
+          -ms-overflow-style: none;  /* IE and Edge */
+          scrollbar-width: none;  /* Firefox */
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none; /* Chrome, Safari and Opera */
+        }
+      `}</style>
+
+      {/* Proje Detay Modal */}
+      {selectedProject && (
+        <ProjectModal project={selectedProject} onClose={closeProjectModal} />
+      )}
+    </section>
+  );
+};
+
+// Proje detay modal bileşeni
+const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+  const projectType = defaultProjectTypes[project.id] || 'web';
+  const ProjectIcon = projectIcons[projectType] || Code;
+  const colors = projectColors[projectType];
+  
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+        onClose();
+      }
+    };
+    
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onClose]);
+  
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+      <motion.div
+        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 20, scale: 0.95 }}
+        transition={{ duration: 0.3 }}
+        className="bg-dark-bg border border-gray-800/50 max-w-4xl w-full max-h-[90vh] overflow-y-auto rounded-xl shadow-xl"
+        ref={modalRef}
+      >
+        <div className="p-6 md:p-8">
+          {/* Proje başlığı ve ikon */}
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex items-center gap-4">
+              <div className={`hidden md:flex w-16 h-16 rounded-xl ${colors.bg} items-center justify-center flex-shrink-0`}>
+                <ProjectIcon size={32} className={colors.text} />
+              </div>
+              <h2 className="text-2xl md:text-3xl font-bold">{project.title}</h2>
+            </div>
+            
+            <div className="flex gap-4">
+              {project.githubUrl && (
+                <a
+                  href={project.githubUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-gray-800/50 p-2 rounded-full text-gray-400 hover:text-white transition-colors"
+                >
+                  <Github size={20} />
+                </a>
+              )}
+              {project.liveUrl && (
+                <a
+                  href={project.liveUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-gray-800/50 p-2 rounded-full text-gray-400 hover:text-white transition-colors"
+                >
+                  <ExternalLink size={20} />
+                </a>
+              )}
+            </div>
+          </div>
+          
+          {/* Proje açıklaması */}
+          <p className="text-gray-300 mb-8">{project.description}</p>
+          
+          {/* Teknolojiler */}
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold mb-3">Kullanılan Teknolojiler</h3>
+            <div className="flex flex-wrap gap-2">
+              {project.technologies.map((tech: string) => (
+                <span
+                  key={tech}
+                  className="px-3 py-1 rounded-full bg-blue-500/10 text-blue-400"
+                >
+                  {tech}
+                </span>
+              ))}
+            </div>
+          </div>
+          
+          {/* Proje detayları ve özellikler */}
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold mb-3">Özellikler</h3>
+            <ul className="list-disc list-inside text-gray-300 space-y-2">
+              <li>Responsive tasarım ile mobil ve desktop uyumluluğu</li>
+              <li>Modern ve kullanıcı dostu arayüz</li>
+              <li>Yüksek performans ve SEO optimizasyonu</li>
+              <li>CI/CD ile otomatik deployment süreci</li>
+              <li>Kapsamlı test coverage</li>
+            </ul>
+          </div>
+          
+          {/* Butonlar */}
+          <div className="flex justify-end gap-4 mt-6">
+            <Button variant="secondary" size="lg" onClick={onClose}>
+              Kapat
+            </Button>
+            {project.liveUrl && (
+              <Button 
+                variant="primary" 
+                size="lg"
+                onClick={() => window.open(project.liveUrl, '_blank')}
+              >
+                <ExternalLink size={18} className="mr-2" />
+                Canlı Demo
+              </Button>
+            )}
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
