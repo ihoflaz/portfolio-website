@@ -7,7 +7,7 @@ import {
   // Teknoloji ikonları
   Box, LayoutGrid, FileJson, Palette, Server, Code2, Database as DbIcon,
   FileCode, BarChart, GitFork, GitBranch, Package, Dock, Cloud,
-  CircuitBoard, Wand2, Globe, LineChart, Terminal
+  CircuitBoard, Wand2, Globe, LineChart, Terminal, LucideIcon
 } from 'lucide-react';
 import { skills, projects } from '@/lib/data';
 import { SectionHeader } from '@/components/ui/SectionHeader';
@@ -41,7 +41,7 @@ const categoryDescriptions = {
 };
 
 // Teknoloji ikonları
-const techIcons: Record<string, React.ElementType> = {
+const techIcons: Record<string, LucideIcon> = {
   'React': Box,
   'Next.js': LayoutGrid,
   'Vue.js': LayoutGrid,
@@ -122,7 +122,7 @@ const TechLogo: React.FC<TechLogoProps> = ({ name, index }) => {
   }, [isHovered, name]);
   
   // İkon ve fallback renk
-  const IconComponent = techIcons[name] || Code;
+  const IconComponent: LucideIcon = techIcons[name] || Code;
   const fallbackColor = fallbackColors[name] || 'bg-gray-700';
   
   // Animasyon başlangıç stili
