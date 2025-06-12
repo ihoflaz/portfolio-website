@@ -1,5 +1,44 @@
 import { Experience, Project, Skill, PersonalInfo, Education, Language } from '@/types';
 
+// Project icon mapping based on technology stack and category
+export const getProjectIcon = (projectId: string): string => {
+  const iconMap: Record<string, string> = {
+    'opca': 'Smartphone',
+    'teknofest-wireless': 'Radio', 
+    'sara-safe-range': 'Bluetooth',
+    'pharmora': 'Pill',
+    'emotion-analysis': 'Brain',
+    'f43-bootcamp': 'Code2',
+    'stock-video-api': 'Video',
+    'eguven-admin': 'Shield',
+    'endulus-travel': 'MapPin',
+    'hand-gesture': 'Hand',
+    'turkce-llm': 'Bot',
+    'ios-image-ai': 'Eye',
+    'java-exception': 'Coffee',
+    'wokwi-microcontroller': 'Cpu',
+    'sdk6800-assembly': 'Binary',
+    'swift-phone-auth': 'KeySquare',
+    'hashcat-password': 'Lock',
+    'blog-platform': 'FileText',
+    'swift-handwritten-digits': 'PenTool'
+  };
+  
+  return iconMap[projectId] || 'Code';
+};
+
+// Additional icon fallbacks for missing icons
+export const getIconFallback = (iconName: string): string => {
+  const fallbacks: Record<string, string> = {
+    'KeySquare': 'Key',
+    'Code2': 'Code',
+    'PenTool': 'Edit',
+    'Pill': 'Plus'
+  };
+  
+  return fallbacks[iconName] || iconName;
+};
+
 export const personalInfo: PersonalInfo = {
   name: "İbrahim Hulusi Oflaz",
   title: "Software Developer",

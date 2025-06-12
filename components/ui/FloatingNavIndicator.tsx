@@ -10,11 +10,10 @@ export const FloatingNavIndicator: React.FC = () => {
   const sections = [
     { id: 'home', label: 'Ana Sayfa' },
     { id: 'about', label: 'Hakkımda' },
-    { id: 'experience', label: 'Deneyimler' },
+    { id: 'skills', label: 'Yetenekler' },
     { id: 'projects', label: 'Projeler' },
     { id: 'websites', label: 'Web Siteleri' },
-    { id: 'skills', label: 'Yetenekler' },
-    { id: 'testimonials', label: 'Referanslar' },
+    { id: 'experience', label: 'Deneyimler' },
     { id: 'contact', label: 'İletişim' }
   ];
 

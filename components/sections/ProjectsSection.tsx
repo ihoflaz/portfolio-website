@@ -3,9 +3,10 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ExternalLink, Github, Code, Brain, Smartphone, Server, Database, Cloud, Puzzle } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { Button } from '@/components/ui/Button';
-import { projects } from '@/lib/data';
+import { projects, getProjectIcon, getIconFallback } from '@/lib/data';
 import { Project } from '@/types';
 
 // Proje kategorisi/türüne göre ikon eşleştirme
@@ -61,6 +62,10 @@ const ProjectCard: React.FC<{ project: Project; index: number }> = ({ project, i
   const projectType = getProjectType(project);
   const Icon = projectIcons[projectType] || Puzzle;
   const colors = projectColors[projectType] || projectColors.other;
+    // Get specific icon for this project
+  const specificIconName = getProjectIcon(project.id);
+  const fallbackIconName = getIconFallback(specificIconName);
+  const SpecificIcon = (LucideIcons as any)[specificIconName] || (LucideIcons as any)[fallbackIconName] || Icon;
 
   return (
     <motion.div
@@ -71,17 +76,16 @@ const ProjectCard: React.FC<{ project: Project; index: number }> = ({ project, i
       whileHover={{ scale: 1.02 }}
       className="glass p-6 rounded-2xl hover:shadow-2xl transition-all duration-300 group"
     >
-      {/* Proje görseli */}
-      {project.imageUrl && (
-        <div className="relative overflow-hidden rounded-xl mb-4">
-          <img
-            src={project.imageUrl}
-            alt={project.title}
-            className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-        </div>
-      )}      {/* Proje başlığı */}
+      {/* Project Icon Header */}
+      <div className="relative h-48 flex items-center justify-center bg-gradient-to-br from-blue-500/20 to-purple-600/20 backdrop-blur-sm rounded-xl mb-4">
+        <SpecificIcon 
+          size={64} 
+          className="text-blue-400 group-hover:text-blue-300 transition-colors duration-300" 
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-xl" />
+      </div>
+      
+      {/* Proje başlığı */}
       <div className="flex items-center gap-3 mb-3">
         <div className={`p-2 rounded-lg ${colors.bg}`}>
           {React.createElement(Icon, { 

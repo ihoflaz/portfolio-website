@@ -162,4 +162,98 @@ textarea:focus-visible {
 ::selection {
   background: rgba(59, 130, 246, 0.3);
   color: #f8fafc;
-} 
+}
+
+/* Enhanced interactive elements */
+.interactive-orb {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.interactive-orb:hover {
+  transform: scale(1.1);
+  filter: brightness(1.2);
+}
+
+/* Glowing effect for interactive elements */
+.glow {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+}
+
+.glow-purple {
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
+}
+
+/* Enhanced project card hover effects */
+.project-card:hover .project-icon {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.project-icon {
+  transition: transform 0.3s ease;
+}
+
+/* Floating animation */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.float-animation {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Pulse animation for interactive elements */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.5); }
+  50% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.8); }
+}
+
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Global Mouse Follower Enhancements */
+.mouse-follower-active {
+  cursor: none !important;
+}
+
+.mouse-follower-active * {
+  cursor: none !important;
+}
+
+/* Custom cursor for interactive elements */
+.interactive-element {
+  position: relative;
+}
+
+.interactive-element::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  border: 2px solid rgba(59, 130, 246, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.interactive-element:hover::before {
+  opacity: 1;
+}
+
+/* Enhanced performance for animations */
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000;
+}
+
+/* Smooth transitions for interactive states */
+.smooth-interaction {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}

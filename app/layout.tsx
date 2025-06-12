@@ -5,6 +5,7 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { FloatingNavIndicator } from '@/components/ui/FloatingNavIndicator';
 import { ThreeBackground } from '@/components/ui/ThreeBackground';
+import { GlobalMouseFollower } from '@/components/ui/GlobalMouseFollower';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -30,6 +31,9 @@ export default function RootLayout({
       <body className={`${inter.className} relative min-h-screen overflow-x-hidden`}>
         {/* Three.js Background */}
         <ThreeBackground />
+        
+        {/* Global Mouse Follower */}
+        <GlobalMouseFollower />
         
         {/* Main Content */}
         <div className="relative z-10">
